@@ -21,7 +21,7 @@ jobs:
       run: go build -o bin/main
 
     - name: Zip Lambda
-      run: zip authorizer.zip bin
+      run: zip -r authorizer.zip -@ bin
 
     - name: Setup AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
