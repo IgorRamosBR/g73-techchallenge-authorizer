@@ -4,7 +4,7 @@ resource "aws_lambda_function" "authorizer_lambda" {
   function_name = "api-authorizer"
   role = aws_iam_role.lambda_role.arn
   handler = "bin/main"
-  runtime = "provided.al2023"
+  runtime = "provided.al2"
   environment {
     variables = {
       DB_HOST = "g73-techchallenge-db.cxokeewukuer.us-east-1.rds.amazonaws.com"
