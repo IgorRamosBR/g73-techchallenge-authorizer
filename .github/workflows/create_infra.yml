@@ -21,9 +21,11 @@ jobs:
         terraform_version: 1.7.4
 
     - name: Terraform Init
+      working-directory: ./infra
       run: terraform init
 
     - name: Terraform Plan
+      working-directory: ./infra
       run: terraform plan
   
   apply:
@@ -42,7 +44,9 @@ jobs:
         terraform_version: 1.7.4
 
     - name: Terraform Init
+      working-directory: ./infra
       run: terraform init
 
     - name: Terraform Apply
+      working-directory: ./infra
       run: terraform apply -auto-approve
