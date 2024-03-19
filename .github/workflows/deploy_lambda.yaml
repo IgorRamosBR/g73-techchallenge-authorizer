@@ -21,7 +21,10 @@ jobs:
       run: go build -o bin/main
 
     - name: Zip Lambda
-      run: zip -r authorizer.zip -@ bin
+      uses: vimtor/action-zip@v1.2
+      with:
+        files: bin/
+        dest: authorizer.zip
 
     - name: Setup AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
