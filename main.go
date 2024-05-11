@@ -48,7 +48,6 @@ func init() {
 }
 
 func LambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	log.Printf("Request: %v", req)
 	return ginLambda.ProxyWithContext(ctx, req)
 }
 
@@ -69,6 +68,7 @@ func authorizeUserHandler(c *gin.Context) {
 
 	item, err := getUserFromDynamoDB(c, requestBody.CPF)
 	if err != nil {
+		log.Printf("failed to get user: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user"})
 		return
 	}
@@ -79,11 +79,13 @@ func authorizeUserHandler(c *gin.Context) {
 func createUserHandler(c *gin.Context) {
 	var user User
 	if err := c.BindJSON(&user); err != nil {
+		log.Printf("failed to bind user: %v", err)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
 		return
 	}
 
 	if err := saveUserToDynamoDB(c, user); err != nil {
+		log.Printf("failed to save user, error: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
 		return
 	}
