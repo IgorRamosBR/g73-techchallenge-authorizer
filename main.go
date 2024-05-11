@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -27,8 +26,8 @@ type User struct {
 
 type Response struct {
 	IsAuthorized bool   `json:"isAuthorized"`
-	UserId       int    `json:"id"`
 	Message      string `json:"message"`
+	User         User   `json:"user,omitempty"`
 }
 
 var (
@@ -62,14 +61,14 @@ func authorizeUserHandler(c *gin.Context) {
 	err := c.BindJSON(&requestBody)
 	if err != nil {
 		log.Printf("Bad request: %v", err)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "User unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "user unauthorized"})
 		return
 	}
 
 	item, err := getUserFromDynamoDB(c, requestBody.CPF)
 	if err != nil {
 		log.Printf("failed to get user: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to get user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get user"})
 		return
 	}
 
@@ -80,23 +79,23 @@ func createUserHandler(c *gin.Context) {
 	var user User
 	if err := c.BindJSON(&user); err != nil {
 		log.Printf("failed to bind user: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request payload"})
 		return
 	}
 
 	if err := saveUserToDynamoDB(c, user); err != nil {
 		log.Printf("failed to save user, error: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 		return
 	}
 
 	c.Status(http.StatusCreated)
 }
 
-func getUserFromDynamoDB(ctx context.Context, cpf string) (User, error) {
+func getUserFromDynamoDB(ctx context.Context, cpf string) (Response, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
-		return User{}, err
+		return Response{}, err
 	}
 
 	client := dynamodb.NewFromConfig(cfg)
@@ -110,20 +109,28 @@ func getUserFromDynamoDB(ctx context.Context, cpf string) (User, error) {
 
 	result, err := client.GetItem(ctx, input)
 	if err != nil {
-		return User{}, err
+		return Response{}, err
 	}
 
 	if len(result.Item) == 0 {
-		return User{}, fmt.Errorf("user with CPF %s not found", cpf)
+		return Response{
+			IsAuthorized: false,
+			Message:      "user unauthorized",
+		}, nil
 	}
 
 	var user User
 	err = attributevalue.UnmarshalMap(result.Item, &user)
 	if err != nil {
-		return User{}, err
+		return Response{}, err
 	}
 
-	return user, nil
+	response := Response{
+		IsAuthorized: true,
+		Message:      "user authorized",
+		User:         user,
+	}
+	return response, nil
 }
 
 func saveUserToDynamoDB(ctx context.Context, user User) error {
