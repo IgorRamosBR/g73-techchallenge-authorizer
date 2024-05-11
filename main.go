@@ -118,7 +118,7 @@ func getUserFromDynamoDB(ctx context.Context, cpf string) (User, error) {
 	}
 
 	var user User
-	err = attributevalue.UnmarshalMap(result.Item, user)
+	err = attributevalue.UnmarshalMap(result.Item, &user)
 	if err != nil {
 		return User{}, err
 	}
