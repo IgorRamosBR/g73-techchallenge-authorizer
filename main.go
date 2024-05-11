@@ -53,7 +53,7 @@ func LambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (even
 }
 
 func main() {
-	lambda.Start(ginLambda)
+	lambda.Start(LambdaHandler)
 }
 
 func authorizeUserHandler(c *gin.Context) {
