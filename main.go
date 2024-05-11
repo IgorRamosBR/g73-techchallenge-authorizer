@@ -48,6 +48,7 @@ func init() {
 }
 
 func LambdaHandler(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+	log.Printf("Request: %v", req)
 	return ginLambda.ProxyWithContext(ctx, req)
 }
 
