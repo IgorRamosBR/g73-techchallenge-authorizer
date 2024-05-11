@@ -127,12 +127,14 @@ func getUserFromDynamoDB(ctx context.Context, cpf string) (User, error) {
 func saveUserToDynamoDB(ctx context.Context, user User) error {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
+		log.Printf("failed to load default config, error: %v", err)
 		return err
 	}
 	client := dynamodb.NewFromConfig(cfg)
 
 	item, err := attributevalue.MarshalMap(user)
 	if err != nil {
+		log.Printf("failed to create item, error: %v", err)
 		return err
 	}
 
@@ -143,6 +145,7 @@ func saveUserToDynamoDB(ctx context.Context, user User) error {
 
 	_, err = client.PutItem(ctx, input)
 	if err != nil {
+		log.Printf("failed toto put item, error: %v", err)
 		return err
 	}
 
