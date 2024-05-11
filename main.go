@@ -17,7 +17,6 @@ import (
 
 	ginadapter "github.com/awslabs/aws-lambda-go-api-proxy/gin"
 	"github.com/gin-gonic/gin"
-	_ "github.com/lib/pq"
 )
 
 type User struct {
@@ -148,42 +147,3 @@ func saveUserToDynamoDB(ctx context.Context, user User) error {
 
 	return nil
 }
-
-// func main() {
-// 	// Connect to the RDS database
-// 	db, err := sql.Open("postgres", "host=g73-techchallenge-db.cxokeewukuer.us-east-1.rds.amazonaws.com port=5432 user=g73_admin_user password=UV6RetyeibtF dbname=mydb sslmode=disable")
-// 	if err != nil {
-// 		log.Fatalf("Error connecting to database: %v", err)
-// 	}
-// 	defer db.Close()
-
-// 	handler := func(ctx context.Context, request events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-// 		var requestBody struct {
-// 			CPF string `json:"cpf"`
-// 		}
-// 		if err := json.Unmarshal([]byte(request.Body), &requestBody); err != nil {
-// 			log.Printf("Bad request: %v", err)
-// 			return events.APIGatewayProxyResponse{StatusCode: 404}, nil
-// 		}
-
-// 		var user User
-// 		err := db.QueryRow("SELECT id, name, cpf FROM users WHERE cpf = ?", requestBody.CPF).Scan(&user.ID, &user.Name, &user.CPF)
-// 		if err != nil {
-// 			if err == sql.ErrNoRows {
-// 				return events.APIGatewayProxyResponse{StatusCode: 403, Body: "Unauthorized"}, nil
-// 			}
-// 			return events.APIGatewayProxyResponse{StatusCode: 500}, fmt.Errorf("error querying database: %v", err)
-// 		}
-
-// 		response := Response{IsAuthorized: true, UserId: user.ID, Message: "User found"}
-// 		responseBody, err := json.Marshal(response)
-// 		if err != nil {
-// 			log.Printf("Error marshalling response body: %v", err)
-// 			return events.APIGatewayProxyResponse{StatusCode: 500}, nil
-// 		}
-
-// 		return events.APIGatewayProxyResponse{StatusCode: 200, Body: string(responseBody)}, nil
-// 	}
-
-// 	lambda.Start(handler)
-// }
