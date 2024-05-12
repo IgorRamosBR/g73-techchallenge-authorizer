@@ -40,7 +40,7 @@ func init() {
 	log.Printf("Gin cold start")
 	router := gin.Default()
 
-	router.GET("/authorize", authorizeUserHandler)
+	router.POST("/authorize", authorizeUserHandler)
 	router.POST("/user", createUserHandler)
 
 	ginLambda = ginadapter.New(router)
