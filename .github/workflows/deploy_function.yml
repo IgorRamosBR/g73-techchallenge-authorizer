@@ -1,0 +1,38 @@
+name: Deploy Lambda Function
+
+on:
+  push:
+    tags:
+      - '**'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.20'
+
+      - name: Build Lambda Function
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bootstrap
+
+      - name: Zip Lambda Function
+        run: zip deployment.zip bootstrap
+
+      - name: Deploy to AWS Lambda
+        run: aws lambda update-function-code --function-name g73-techchallenge-authorizer --zip-file fileb://deployment.zip
+
+
